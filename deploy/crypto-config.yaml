@@ -1,0 +1,39 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# ---------------------------------------------------------------------------
+# "OrdererOrgs" - Definition of organizations managing orderer nodes
+# ---------------------------------------------------------------------------
+OrdererOrgs:
+  # ---------------------------------------------------------------------------
+  # Orderer
+  # ---------------------------------------------------------------------------
+  - Name: Orderer
+    Domain: vmi.com
+#    EnableNodeOUs: true
+    # ---------------------------------------------------------------------------
+    # "Specs" - See PeerOrgs below for complete description
+    # ---------------------------------------------------------------------------
+    Specs:
+      - Hostname: orderer
+
+# ---------------------------------------------------------------------------
+# "PeerOrgs" - Definition of organizations managing peer nodes
+# ---------------------------------------------------------------------------
+PeerOrgs:
+  - Name: Supplier
+    Domain: supplier.vmi.com
+    Template:
+      Count: 3
+    Users:
+      Count: 2
+
+  - Name: Retailer
+    Domain: retailer.vmi.com
+#    EnableNodeOUs: true
+    Template:
+      Count: 3
+    Users:
+      Count: 2

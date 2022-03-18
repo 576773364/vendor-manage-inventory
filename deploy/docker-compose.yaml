@@ -1,0 +1,172 @@
+version: '2'
+services:
+
+
+  couchdb:
+    container_name: couchdb
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=
+      - COUCHDB_PASSWORD=
+    ports:
+      - 5984:5984
+
+
+  orderer.vmi.com:
+    container_name: orderer.vmi.com
+    image: hyperledger/fabric-orderer
+    environment:
+      - ORDERER_GENERAL_LOGLEVEL=info # general.loglevel: debug
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0 # 服务暴露地址
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/etc/hyperledger/config/genesis.block # 注入创世区块
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/orderer/msp # 证书相关
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/orderer
+    command: orderer
+    ports:
+      - 7050:7050 # 17050:7050
+    volumes:
+      #- ./config/:/etc/hyperledger/config
+      - ./config/genesis.block:/etc/hyperledger/config/genesis.block
+      - ./crypto-config/ordererOrganizations/vmi.com/orderers/orderer.vmi.com/:/etc/hyperledger/orderer
+
+
+  peer0.supplier.vmi.com:
+    extends:
+      file: docker-compose-base.yaml
+      service: peer-base
+    container_name: peer0.supplier.vmi.com
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_ID=peer0.supplier.vmi.com
+      - CORE_PEER_LOCALMSPID=SupplierMSP
+      - CORE_PEER_ADDRESS=peer0.supplier.vmi.com:7051
+    ports:
+      - 7051:7051 # grpc服务端口
+      - 7053:7053 # eventhub端口
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./crypto-config/peerOrganizations/supplier.vmi.com/peers/peer0.supplier.vmi.com:/etc/hyperledger/peer
+    depends_on:
+      - orderer.vmi.com
+      - couchdb
+
+  peer1.supplier.vmi.com:
+    extends:
+      file: docker-compose-base.yaml
+      service: peer-base
+    container_name: peer1.supplier.vmi.com
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_ID=peer1.supplier.vmi.com
+      - CORE_PEER_LOCALMSPID=SupplierMSP
+      - CORE_PEER_ADDRESS=peer1.supplier.vmi.com:7051
+    ports:
+      - 8051:7051
+      - 8053:7053
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./crypto-config/peerOrganizations/supplier.vmi.com/peers/peer1.supplier.vmi.com:/etc/hyperledger/peer
+    depends_on:
+      - orderer.vmi.com
+      - couchdb
+
+  peer2.supplier.vmi.com:
+    extends:
+      file: docker-compose-base.yaml
+      service: peer-base
+    container_name: peer2.supplier.vmi.com
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_ID=peer2.supplier.vmi.com
+      - CORE_PEER_LOCALMSPID=SupplierMSP
+      - CORE_PEER_ADDRESS=peer2.supplier.vmi.com:7051
+    ports:
+      - 9051:7051
+      - 9053:7053
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./crypto-config/peerOrganizations/supplier.vmi.com/peers/peer2.supplier.vmi.com:/etc/hyperledger/peer
+    depends_on:
+      - orderer.vmi.com
+      - couchdb
+
+  peer0.retailer.vmi.com:
+    extends:
+      file: docker-compose-base.yaml
+      service: peer-base
+    container_name: peer0.retailer.vmi.com
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_ID=peer0.retailer.vmi.com
+      - CORE_PEER_LOCALMSPID=RetailerMSP
+      - CORE_PEER_ADDRESS=peer0.retailer.vmi.com:7051
+    ports:
+      - 10051:7051
+      - 10053:7053
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./crypto-config/peerOrganizations/retailer.vmi.com/peers/peer0.retailer.vmi.com:/etc/hyperledger/peer
+    depends_on:
+      - orderer.vmi.com
+      - couchdb
+
+  peer1.retailer.vmi.com:
+    extends:
+      file: docker-compose-base.yaml
+      service: peer-base
+    container_name: peer1.retailer.vmi.com
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_ID=peer1.retailer.vmi.com
+      - CORE_PEER_LOCALMSPID=RetailerMSP
+      - CORE_PEER_ADDRESS=peer1.retailer.vmi.com:7051
+    ports:
+      - 11051:7051
+      - 11053:7053
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./crypto-config/peerOrganizations/retailer.vmi.com/peers/peer1.retailer.vmi.com:/etc/hyperledger/peer
+    depends_on:
+      - orderer.vmi.com
+      - couchdb
+
+  peer2.retailer.vmi.com:
+    extends:
+      file: docker-compose-base.yaml
+      service: peer-base
+    container_name: peer2.retailer.vmi.com
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_ID=peer2.retailer.vmi.com
+      - CORE_PEER_LOCALMSPID=RetailerMSP
+      - CORE_PEER_ADDRESS=peer2.retailer.vmi.com:7051
+    ports:
+      - 12051:7051
+      - 12053:7053
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./crypto-config/peerOrganizations/retailer.vmi.com/peers/peer2.retailer.vmi.com:/etc/hyperledger/peer
+    depends_on:
+      - orderer.vmi.com
+      - couchdb
+
+
+  cli: # peer节点客户端 交易都是从客户端发起 需要用到User证书
+    container_name: cli
+    image: hyperledger/fabric-tools
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+#      - CORE_LOGGING_LEVEL=INFO
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer0.supplier.vmi.com:7051
+      - CORE_PEER_LOCALMSPID=SupplierMSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/peer/users/Admin@supplier.vmi.com/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/
+    command: /bin/bash
+    volumes:
+      - ./../chaincode:/opt/gopath/src/github.com/vendor-manage-inventory/chaincode # 链码路径注入
+      - ./config:/etc/hyperledger/config
+      - ./crypto-config/peerOrganizations/supplier.vmi.com/:/etc/hyperledger/peer
